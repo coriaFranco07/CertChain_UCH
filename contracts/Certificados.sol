@@ -3,55 +3,43 @@ pragma solidity ^0.8.13;
 
 contract Certificado {
     struct CertificadoData {
-        uint id_certificado;
-        string hash;
         uint id_estudiante;
         uint id_nft;
         uint id_curso;
         uint fecha_emision;
         string firma;
+        uint id_estado;
     }
 
     mapping(uint => CertificadoData) public certificados;
-    uint public certificadoCount;
+    uint public nextId;
 
-    event CertificadoEmitido(
-        uint id_certificado,
-        string hash,
+    function emitirCertificado(
+        uint idEstudiante,
+        uint idNft,
+        uint idCurso,
+        uint fechaEmision,
+        string memory firma,
+        uint idEstado
+    ) public {
+        certificados[nextId] = CertificadoData(
+            idEstudiante, idNft, idCurso, fechaEmision, firma, idEstado
+        );
+        nextId++;
+    }
+
+    function obtenerCertificado(uint id) public view returns (
         uint id_estudiante,
         uint id_nft,
         uint id_curso,
         uint fecha_emision,
-        string firma
-    );
-
-    function emitirCertificado(
-        string memory _hash,
-        uint _id_estudiante,
-        uint _id_nft,
-        uint _id_curso,
-        uint _fecha_emision,
-        string memory _firma
-    ) public {
-        certificadoCount++;
-        certificados[certificadoCount] = CertificadoData(
-            certificadoCount,
-            _hash,
-            _id_estudiante,
-            _id_nft,
-            _id_curso,
-            _fecha_emision,
-            _firma
-        );
-
-        emit CertificadoEmitido(
-            certificadoCount,
-            _hash,
-            _id_estudiante,
-            _id_nft,
-            _id_curso,
-            _fecha_emision,
-            _firma
+        string memory firma,
+        uint id_estado
+    ) {
+        CertificadoData memory c = certificados[id];
+        return (
+            c.id_estudiante, c.id_nft, c.id_curso, c.fecha_emision,
+            c.firma, c.id_estado
         );
     }
 }
