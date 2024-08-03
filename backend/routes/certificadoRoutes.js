@@ -65,7 +65,7 @@ router.post('/emitir', async (req, res) => {
             hashCertificadoValue
         ).send(tx);
 
-        // Responder con los detalles de la transacción y los datos enviados
+        // Responder con los detalles de la transaccion y los datos enviados
         res.status(200).json({
             success: true,
             message: 'Certificado emitido con éxito',
