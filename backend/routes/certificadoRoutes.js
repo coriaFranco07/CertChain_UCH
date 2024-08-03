@@ -49,6 +49,12 @@ router.post('/emitir', async (req, res) => {
         const hashCertificadoValue = hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado);
 
         // Enviar la transacción
+        const tx = {
+            from: accounts[0],
+            gas: 2000000, // Ajusta el gas según sea necesario
+            gasPrice: web3.utils.toWei('20', 'gwei') // Usar gasPrice en lugar de maxFeePerGas
+        };
+
         const resultado = await contrato.methods.emitirCertificado(
             parseInt(id_estudiante),
             parseInt(id_nft),
@@ -57,7 +63,7 @@ router.post('/emitir', async (req, res) => {
             hashFirma,
             parseInt(id_estado),
             hashCertificadoValue
-        ).send({ from: accounts[0] });
+        ).send(tx);
 
         // Responder con los detalles de la transacción y los datos enviados
         res.status(200).json({
