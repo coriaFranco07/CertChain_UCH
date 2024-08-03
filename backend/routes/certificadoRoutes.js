@@ -5,46 +5,78 @@ import certificadoJson from '../../build/contracts/Certificado.json' assert { ty
 
 const router = express.Router();
 const web3 = new Web3('http://localhost:8545');
-const contratoDireccion = '0x29ABB641653E9256dcA147466bEF00f3137a5Ac1';
-const contrato = new web3.eth.Contract(certificadoJson.abi, contratoDireccion);
+const contrato = new web3.eth.Contract(certificadoJson.abi, '0x29ABB641653E9256dcA147466bef00f3137a5ac1');
 
 // Función para hashear una firma
 function hashearFirma(firma) {
     return crypto.createHash('sha256').update(firma).digest('hex');
 }
 
+// Función para hashear todos los datos del certificado
+function hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado) {
+    const datos = `${id_estudiante}-${id_nft}-${id_curso}-${timestamp}-${hashFirma}-${id_estado}`;
+    return crypto.createHash('sha256').update(datos).digest('hex');
+}
+
 router.post('/emitir', async (req, res) => {
     const { id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado } = req.body;
-    const accounts = await web3.eth.getAccounts();
-
-    // Convertir fecha_emision a timestamp si es una cadena de texto
-    const timestamp = isNaN(fecha_emision) ? Math.floor(new Date(fecha_emision).getTime() / 1000) : parseInt(fecha_emision);
-
-    // Verificar que fecha_emision sea un número entero
-    if (isNaN(timestamp) || timestamp <= 0) {
-        return res.status(400).send({
-            success: false,
-            message: 'fecha_emision debe ser un timestamp válido en segundos'
-        });
-    }
-
-    // Hashear la firma
-    const hashFirma = hashearFirma(firma); 
 
     try {
-        console.log(id_estudiante, id_curso, id_nft, timestamp, hashFirma, id_estado)
+        // Obtener cuentas
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No se encontraron cuentas disponibles.'
+            });
+        }
+
+        // Convertir fecha_emision a timestamp si es una cadena de texto
+        const timestamp = isNaN(fecha_emision) ? Math.floor(new Date(fecha_emision).getTime() / 1000) : parseInt(fecha_emision);
+
+        // Verificar que fecha_emision sea un número entero
+        if (isNaN(timestamp) || timestamp <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'fecha_emision debe ser un timestamp válido en segundos'
+            });
+        }
+
+        // Hashear la firma
+        const hashFirma = hashearFirma(firma);
+
+        // Hashear el certificado con todos los datos relevantes
+        const hashCertificadoValue = hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado);
+
         // Enviar la transacción
         const resultado = await contrato.methods.emitirCertificado(
-            id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado
+            parseInt(id_estudiante),
+            parseInt(id_nft),
+            parseInt(id_curso),
+            timestamp,
+            hashFirma,
+            parseInt(id_estado),
+            hashCertificadoValue
         ).send({ from: accounts[0] });
 
-        res.status(200).send({
+        // Responder con los detalles de la transacción y los datos enviados
+        res.status(200).json({
             success: true,
             message: 'Certificado emitido con éxito',
-            data: resultado
+            data: {
+                inputData: {
+                    id_estudiante,
+                    id_nft,
+                    id_curso,
+                    fecha_emision,
+                    hashFirma,
+                    id_estado,
+                    hashCertificado: hashCertificadoValue
+                }
+            }
         });
     } catch (error) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: error.message
         });

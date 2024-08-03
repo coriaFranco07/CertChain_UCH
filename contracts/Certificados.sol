@@ -19,7 +19,7 @@ contract Certificado {
         uint idNft,
         uint idCurso,
         uint fechaEmision,
-        string memory firma,
+        string memory firma,  // Debe ser string si estás enviando un hash como string
         uint idEstado
     ) public {
         certificados[nextId] = CertificadoData(
