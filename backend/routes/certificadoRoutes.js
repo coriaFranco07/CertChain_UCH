@@ -32,6 +32,7 @@ router.post('/emitir', async (req, res) => {
     const hashFirma = hashearFirma(firma); 
 
     try {
+        console.log(id_estudiante, id_curso, id_nft, timestamp, hashFirma, id_estado)
         // Enviar la transacción
         const resultado = await contrato.methods.emitirCertificado(
             id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado
