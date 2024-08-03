@@ -1,6 +1,7 @@
 import Web3 from 'web3';
 import crypto from 'crypto';
-import certificadoJson from '../../build/contracts/Certificado.json';
+import certificadoJson from '../../build/contracts/Certificado.json' assert { type: 'json' };
+
 
 const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
 const contrato = new web3.eth.Contract(certificadoJson.abi, '0x29ABB641653E9256dcA147466bEF00f3137a5Ac1');
@@ -24,19 +25,6 @@ async function emitirCertificado() {
         
         const timestamp = Math.floor(Date.now() / 1000); // Fecha en formato timestamp
         const hashFirma = hashearFirma('firma_de_certificado'); // Hasheamos la firma
-
-        // Concatenar todos los datos relevantes
-        const datosConcatenados = [
-            '1', // id_estudiante
-            '1', // id_nft
-            '1', // id_curso
-            timestamp.toString(), // fecha_emision
-            hashFirma, // firma
-            '1' // id_estado
-        ].join('|'); // Usar un delimitador único para concatenar datos
-
-        // Hashear los datos concatenados
-        const hashCertificado = hash(datosConcatenados);
 
         const resultado = await contrato.methods.emitirCertificado(
             1, // id_estudiante como entero
