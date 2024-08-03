@@ -48,11 +48,11 @@ module.exports = {
      network_id: "*",       // Any network (default: none)
     },
     //
-    // goerli: {
-    //   provider: () => new HDWalletProvider(mnemonic, `https://goerli.infura.io/v3/${infuraProjectId}`),
-    //   network_id: 5,       // Goerli's id
-    //   chain_id: 5
-    // }
+    goerli: {
+      provider: () => new HDWalletProvider(mnemonic, `https://sepolia.infura.io/v3/95e919e3ea3d4bc6be1251ece0ce049f`),
+      network_id: 5,       // Goerli's id
+      chain_id: 5
+    }
   },
 
   // Set default mocha options here, use special reporters etc.

@@ -1,18 +1,13 @@
 import express from 'express';
-import dotenv from 'dotenv';
-import estadoRoutes from './routes/estadoRoutes.js'; 
-import estudianteRoutes from './routes/estudianteRoutes.js'; 
-
-dotenv.config();
+import bodyParser from 'body-parser';
+import certificadoRoutes from './routes/certificadoRoutes.js';
 
 const app = express();
 const port = 3001;
 
-app.use(express.json());
-
-app.use('/estado', estadoRoutes);
-app.use('/estudiante', estudianteRoutes);
+app.use(bodyParser.json());
+app.use('/api/certificados', certificadoRoutes);
 
 app.listen(port, () => {
-  console.log(`API escuchando en http://localhost:${port}`);
+    console.log(`Servidor corriendo en http://localhost:${port}`);
 });
