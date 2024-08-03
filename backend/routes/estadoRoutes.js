@@ -3,15 +3,31 @@ import Estado from '../models/Estado.js';
 
 const router = express.Router();
 
-// Crear múltiples estados
 router.post('/addEstado', async (req, res) => {
-    const nombre = req.body;
+    const { nombre } = req.body;  
 
     try {
-        const newEstados = await Estado.insertMany(nombre);
-        res.status(201).json(newEstados);
+        const nuevoEstado = new Estado({
+            nombre,
+        });
+
+        // Guardar el nuevo estado en la base de datos
+        const estadoGuardado = await nuevoEstado.save();
+
+        // Responder con un mensaje de éxito
+        res.status(201).json({
+            success: true,
+            message: 'Estado creado con éxito',
+            data: estadoGuardado
+        });
+
+        console.log('Estado registrado con éxito!!!');
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 });
 
