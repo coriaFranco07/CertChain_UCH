@@ -25,7 +25,10 @@ router.post('/addAdmin', async (req, res) => {
             success: true,
             message: 'Administrador creado con éxito',
             data: adminGuardado
-        });
+        }) 
+
+        console.log('Administrador registrado con exito!!!');
+
     } catch (error) {
         // Manejar errores
         res.status(500).json({
