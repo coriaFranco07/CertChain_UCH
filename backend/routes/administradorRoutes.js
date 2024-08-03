@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Endpoint para agregar un nuevo administrador
 router.post('/addAdmin', async (req, res) => {
-    const { nombre, apellido, email, contraseña, id_estado } = req.body;
+    const { nombre, apellido, email, contraseña } = req.body;
 
     try {
         // Crear una nueva instancia del modelo Administrador
@@ -14,7 +14,6 @@ router.post('/addAdmin', async (req, res) => {
             apellido,
             email,
             contraseña,
-            id_estado
         });
 
         // Guardar el nuevo administrador en la base de datos
