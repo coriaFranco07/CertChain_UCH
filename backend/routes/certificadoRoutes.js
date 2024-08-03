@@ -5,7 +5,7 @@ import certificadoJson from '../../build/contracts/Certificado.json' assert { ty
 
 const router = express.Router();
 const web3 = new Web3('http://localhost:8545');
-const contrato = new web3.eth.Contract(certificadoJson.abi, '0x29ABB641653E9256dcA147466bef00f3137a5ac1');
+const contrato = new web3.eth.Contract(certificadoJson.abi, '0x29ABB641653E9256dcA147466bEF00f3137a5Ac1');
 
 // Función para hashear una firma
 function hashearFirma(firma) {
@@ -48,6 +48,13 @@ router.post('/emitir', async (req, res) => {
         // Hashear el certificado con todos los datos relevantes
         const hashCertificadoValue = hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado);
 
+        // Convertir valores a cadenas de texto
+        const id_estudiante_str = id_estudiante.toString();
+        const id_nft_str = id_nft.toString();
+        const id_curso_str = id_curso.toString();
+        const timestamp_str = timestamp.toString();
+        const id_estado_str = id_estado.toString();
+
         // Enviar la transacción
         const tx = {
             from: accounts[0],
@@ -56,12 +63,12 @@ router.post('/emitir', async (req, res) => {
         };
 
         const resultado = await contrato.methods.emitirCertificado(
-            parseInt(id_estudiante),
-            parseInt(id_nft),
-            parseInt(id_curso),
-            timestamp,
-            hashFirma,
-            parseInt(id_estado),
+            id_estudiante_str, 
+            id_nft_str,        
+            id_curso_str,      
+            timestamp_str,     
+            hashFirma,                      
+            id_estado_str,    
             hashCertificadoValue
         ).send(tx);
 
@@ -71,13 +78,7 @@ router.post('/emitir', async (req, res) => {
             message: 'Certificado emitido con éxito',
             data: {
                 inputData: {
-                    id_estudiante,
-                    id_nft,
-                    id_curso,
-                    fecha_emision,
-                    hashFirma,
-                    id_estado,
-                    hashCertificado: hashCertificadoValue
+                    resultado
                 }
             }
         });

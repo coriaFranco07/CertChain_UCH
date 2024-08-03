@@ -1,17 +1,19 @@
 import express from 'express';
-import connectDB from './bd.js';
-import bodyParser from 'body-parser';
-import certificadoRoutes from './routes/certificadoRoutes.js';
+import connectDB from './bd.js';  // Asegúrate de tener el archivo bd.js correcto
+import certificadoRoutes from './routes/certificadoRoutes.js'; // Asegúrate de importar el archivo correcto
+
+const app = express();
+const PORT = process.env.PORT || 3001;
 
 // Conectar a MongoDB
 connectDB();
 
-const app = express();
-const port = 3001;
+// Middleware para manejar JSON
+app.use(express.json());
 
-app.use(bodyParser.json());
+// Usa las rutas del certificado
 app.use('/api/certificados', certificadoRoutes);
 
-app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

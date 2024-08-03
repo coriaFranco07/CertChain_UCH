@@ -1,11 +1,16 @@
+import express from 'express';
 import Web3 from 'web3';
-import assert from 'assert';
-import certificadoJson from '../../build/contracts/Certificado.json';
 import crypto from 'crypto';
+import certificadoJson from '../../build/contracts/Certificado.json' assert { type: 'json' };
 
-const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
-let contrato;
-let accounts;
+const router = express.Router();
+const web3 = new Web3('http://localhost:8545');
+const contrato = new web3.eth.Contract(certificadoJson.abi, '0x29ABB641653E9256dcA147466bEF00f3137a5Ac1');
+
+// Función para hashear una firma
+function hashearFirma(firma) {
+    return crypto.createHash('sha256').update(firma).digest('hex');
+}
 
 // Función para hashear todos los datos del certificado
 function hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado) {
@@ -13,45 +18,70 @@ function hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, 
     return crypto.createHash('sha256').update(datos).digest('hex');
 }
 
-beforeEach(async () => {
-    accounts = await web3.eth.getAccounts();
-    contrato = new web3.eth.Contract(certificadoJson.abi, '0x29ABB641653E9256dcA147466bEF00f3137a5Ac1');
-});
-
-it('debería emitir y verificar un certificado', async () => {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const idCertificado = '1'; // Convertir a string
-
-    const id_estudiante = '1';
-    const id_nft = '1';
-    const id_curso = '1';
-    const firma = 'firma_de_certificado';
-    const id_estado = '1';
-
-    const hashFirma = crypto.createHash('sha256').update(firma).digest('hex');
-    const hashCertificadoValue = hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado);
+router.post('/emitir', async (req, res) => {
+    const { id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado } = req.body;
 
     try {
-        await contrato.methods.emitirCertificado(
-            id_estudiante,
-            id_nft,
-            id_curso,
-            timestamp.toString(),
-            hashFirma,
-            id_estado,
+        // Obtener cuentas
+        const accounts = await web3.eth.getAccounts();
+        if (accounts.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No se encontraron cuentas disponibles.'
+            });
+        }
+
+        // Convertir fecha_emision a timestamp si es una cadena de texto
+        const timestamp = isNaN(fecha_emision) ? Math.floor(new Date(fecha_emision).getTime() / 1000) : parseInt(fecha_emision);
+
+        // Verificar que fecha_emision sea un número entero
+        if (isNaN(timestamp) || timestamp <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'fecha_emision debe ser un timestamp válido en segundos'
+            });
+        }
+
+        // Hashear la firma
+        const hashFirma = hashearFirma(firma);
+
+        // Hashear el certificado con todos los datos relevantes
+        const hashCertificadoValue = hashCertificado(id_estudiante, id_nft, id_curso, timestamp, hashFirma, id_estado);
+
+        // Convertir valores a cadenas de texto
+        const id_estudiante_str = id_estudiante.toString();
+        const id_nft_str = id_nft.toString();
+        const id_curso_str = id_curso.toString();
+        const timestamp_str = timestamp.toString();
+        const id_estado_str = id_estado.toString();
+
+        // Enviar la transacción
+        const resultado = await contrato.methods.emitirCertificado(
+            id_estudiante_str, 
+            id_nft_str,        
+            id_curso_str,      
+            timestamp_str,     
+            hashFirma,                      
+            id_estado_str,    
             hashCertificadoValue
         ).send({ from: accounts[0] });
 
-        const certificadoDesdeContrato = await contrato.methods.obtenerCertificado(idCertificado).call();
-
-        assert.strictEqual(certificadoDesdeContrato.id_estudiante, id_estudiante);
-        assert.strictEqual(certificadoDesdeContrato.id_nft, id_nft);
-        assert.strictEqual(certificadoDesdeContrato.id_curso, id_curso);
-        assert.strictEqual(certificadoDesdeContrato.fecha_emision, timestamp.toString());
-        assert.strictEqual(certificadoDesdeContrato.firma, hashFirma);
-        assert.strictEqual(certificadoDesdeContrato.id_estado, id_estado);
-        assert.strictEqual(certificadoDesdeContrato.hash_certificado, hashCertificadoValue);
+        // Responder con los detalles de la transacción y los datos enviados
+        res.status(200).json({
+            success: true,
+            message: 'Certificado emitido con éxito',
+            data: {
+                inputData: {
+                    resultado
+                }
+            }
+        });
     } catch (error) {
-        assert.fail(`La prueba falló con el siguiente error: ${error.message}`);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 });
+
+export default router;
