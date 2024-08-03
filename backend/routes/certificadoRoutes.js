@@ -55,7 +55,7 @@ router.post('/emitir', async (req, res) => {
             gasPrice: web3.utils.toWei('20', 'gwei') // Usar gasPrice en lugar de maxFeePerGas
         };
 
-        const resultado = await contrato.methods.emitirCertificado(
+/*         const resultado = await contrato.methods.emitirCertificado(
             parseInt(id_estudiante),
             parseInt(id_nft),
             parseInt(id_curso),
@@ -63,7 +63,7 @@ router.post('/emitir', async (req, res) => {
             hashFirma,
             parseInt(id_estado),
             hashCertificadoValue
-        ).send(tx);
+        ).send(tx); */
 
         // Responder con los detalles de la transaccion y los datos enviados
         res.status(200).json({

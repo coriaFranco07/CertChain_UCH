@@ -1,6 +1,9 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import connectDB from './bd.js';  // Asegúrate de tener el archivo bd.js correcto
 import certificadoRoutes from './routes/certificadoRoutes.js'; // Asegúrate de importar el archivo correcto
+import adminRoutes from './routes/administradorRoutes.js';
+import loginRoutes from './routes/loginRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,6 +16,8 @@ app.use(express.json());
 
 // Usa las rutas del certificado
 app.use('/api/certificados', certificadoRoutes);
+app.use('/api/administradores', adminRoutes);
+app.use('/api/login', loginRoutes);
 
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);

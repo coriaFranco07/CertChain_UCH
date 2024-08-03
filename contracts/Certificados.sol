@@ -9,9 +9,10 @@ contract Certificado {
         uint fecha_emision;
         string firma;
         uint id_estado;
+        string hashCertificado; 
     }
 
-    mapping(uint => CertificadoData) public certificados;
+    mapping(string => CertificadoData) public certificados; // Mapea el hashCertificado
     uint public nextId;
 
     function emitirCertificado(
@@ -19,16 +20,17 @@ contract Certificado {
         uint idNft,
         uint idCurso,
         uint fechaEmision,
-        string memory firma,  // Debe ser string si estás enviando un hash como string
-        uint idEstado
+        string memory firma,
+        uint idEstado,
+        string memory hashCertificado // Campo agregado para el hash del certificado
     ) public {
-        certificados[nextId] = CertificadoData(
-            idEstudiante, idNft, idCurso, fechaEmision, firma, idEstado
+        certificados[hashCertificado] = CertificadoData(
+            idEstudiante, idNft, idCurso, fechaEmision, firma, idEstado, hashCertificado
         );
         nextId++;
     }
 
-    function obtenerCertificado(uint id) public view returns (
+    function obtenerCertificado(string memory hashCertificado) public view returns (
         uint id_estudiante,
         uint id_nft,
         uint id_curso,
@@ -36,7 +38,7 @@ contract Certificado {
         string memory firma,
         uint id_estado
     ) {
-        CertificadoData memory c = certificados[id];
+        CertificadoData memory c = certificados[hashCertificado];
         return (
             c.id_estudiante, c.id_nft, c.id_curso, c.fecha_emision,
             c.firma, c.id_estado
