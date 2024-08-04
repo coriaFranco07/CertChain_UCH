@@ -17,9 +17,13 @@ CertChain_UCH leverages blockchain technology to issue, verify, and manage certi
 
 ## Repo Structure
 
+Here's the modified section with the added link to the Contracts README:
+
+## Repo Structure
+
 - **Backend**: Node.js project
 - **Frontend**: React-based project
-- **Contracts**: Foundry project with the certification contract
+- **Contracts**: Foundry project with the certification contract. [Contracts README](https://github.com/coriaFranco07/CertChain_UCH/blob/main/contracts/README.md)
 
 The smart contract is deployed and verified on the Scroll Devnet [L2 LOCAL] Scroll.
 
