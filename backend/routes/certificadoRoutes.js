@@ -1,24 +1,36 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { ethers } from 'ethers';
-import Certificado from './models/Certificado'; // Ajusta la ruta según la ubicación de tu modelo
+import Certificado from '../models/Certificado.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = express.Router();
 
 // Configuración de Mongoose
-mongoose.connect('mongodb://localhost:27017/tu_base_de_datos', {
+mongoose.connect('mongodb://localhost:27017/myDataBase', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
     .then(() => console.log('Conectado a MongoDB'))
     .catch(err => console.error('Error al conectar a MongoDB', err));
 
-// Configuración de ethers
-const provider = new ethers.providers.JsonRpcProvider('YOUR_INFURA_OR_ALCHEMY_URL');
-const privateKey = 'YOUR_PRIVATE_KEY'; // Private key of the contract owner
-const wallet = new ethers.Wallet(privateKey, provider);
-const contractAddress = 'YOUR_CONTRACT_ADDRESS';
+// URLs de RPC
+const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const contractAddress = process.env.CONTRACT_ADDRESS;
 
+if (!SEPOLIA_RPC_URL || !PRIVATE_KEY || !contractAddress) {
+    throw new Error('Faltan variables de entorno. Verifica tu archivo .env');
+}
+
+console.log('SEPOLIA_RPC_URL:', SEPOLIA_RPC_URL);
+console.log('CONTRACT_ADDRESS:', contractAddress);
+
+// Configuración de ethers
+const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC_URL);
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 const abi = [
     "function issueCertificate(address recipient, string ipfsHash) public onlyOwner returns (uint256)",
     "function tokenURI(uint256 tokenId) public view returns (string memory)"
@@ -34,8 +46,9 @@ const contract = new ethers.Contract(contractAddress, abi, wallet);
  * @param fecha_emision Fecha de emisión.
  * @param firma Firma del certificado.
  * @param id_estado ID del estado del certificado.
+ * @param recipientAddress Dirección del receptor del certificado.
  */
-async function emitirYGuardarCertificado(id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado) {
+async function emitirYGuardarCertificado(id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado, recipientAddress) {
     try {
         // Convertir fecha_emision a timestamp si es una cadena de texto
         const timestamp = isNaN(fecha_emision) ? Math.floor(new Date(fecha_emision).getTime() / 1000) : parseInt(fecha_emision);
@@ -63,7 +76,7 @@ async function emitirYGuardarCertificado(id_estudiante, id_nft, id_curso, fecha_
         console.log('Certificado guardado en MongoDB:', certificadoGuardado);
 
         // Emitir el certificado en el contrato inteligente
-        const tx = await contract.issueCertificate('RECIPIENT_ADDRESS', ipfsHash);
+        const tx = await contract.issueCertificate(recipientAddress, ipfsHash);
         console.log(`Transaction sent: ${tx.hash}`);
 
         const receipt = await tx.wait();
@@ -87,10 +100,10 @@ async function emitirYGuardarCertificado(id_estudiante, id_nft, id_curso, fecha_
 }
 
 router.post('/emitir', async (req, res) => {
-    const { id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado } = req.body;
+    const { id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado, recipientAddress } = req.body;
 
     try {
-        await emitirYGuardarCertificado(id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado);
+        await emitirYGuardarCertificado(id_estudiante, id_nft, id_curso, fecha_emision, firma, id_estado, recipientAddress);
 
         res.status(200).json({
             success: true,
