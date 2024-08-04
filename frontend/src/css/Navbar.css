@@ -1,0 +1,33 @@
+.nav-link {
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    font-family: DMSansItalic !important;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    transform: translateX(20%);
+    text-decoration-thickness: 0.1em;
+    width: 70%;
+    height: 2px;
+    background-color: transparent;
+    transition: background-color 0.2s, width 0.2s;
+}
+
+.nav-link:hover::after,
+.active-nav-link::after {
+    background-color: white;
+    width: 80%;
+}
+
+.buttonOutNavbar {
+    background: transparent !important;
+    box-shadow: none !important;
+}
