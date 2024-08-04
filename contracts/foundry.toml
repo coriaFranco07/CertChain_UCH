@@ -1,0 +1,18 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+private_key = "${PRIVATE_KEY}"
+solc_version = "0.8.20"
+
+[rpc_endpoints]
+scroll = "${SCROLL_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+scroll_sepolia = "${SCROLL_SEPOLIA_RPC_URL}"
+
+[etherscan]
+scroll = { key = "48EQKFV3BTGJN8DRY4E2UNMMYZIITYFSPY", chain=534352  }
+scroll_sepolia = { key = "48EQKFV3BTGJN8DRY4E2UNMMYZIITYFSPY", chain=534351 }
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
