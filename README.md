@@ -1,6 +1,14 @@
-# CertChain_UCH
+
+#  CertChain_UCH
+
+## Level Up Argentina × Scroll
+- Track: General
+- Bounty: Beginers
+
+
 
 CertChain_UCH is a hybrid blockchain project designed for issuing diplomas and certifications, combining on-chain and off-chain data storage to achieve scalability, privacy, and security.
+
 
 ## Table of Contents
 
